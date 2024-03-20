@@ -4,6 +4,8 @@ import wget
 from bs4 import BeautifulSoup
 from requests_html2 import HTMLSession
 import pandas as pd
+import psycopg2
+from sqlalchemy import create_engine
 
 # initialize the set of links (unique links)
 internal_urls = set()
@@ -60,10 +62,10 @@ def get_all_website_links(url_web):
         if domain_name not in href:
             # external link
             if href not in external_urls:
-                print(href)
+                # print(href)
                 external_urls.add(href)
             continue
-        print(href)
+        # print(href)
         urls.add(href)
         internal_urls.add(href)
     return urls
@@ -138,11 +140,13 @@ def table_parser(list_of_table):
                         dic_data[key].append(line_tb[int(dic[key][0]) - 1:int(dic[key][1])].strip())
             table_name = table[:-4]
             df = pd.DataFrame(dic_data)
-            df.to_csv(f"{table_name}.csv")
+            # df.to_csv(f"{table_name}.csv")
+            # df.to_excel(f"{table_name}.xlsx")
+            df.to_sql(table_name, con=engine, if_exists='replace')
 
 
 if __name__ == "__main__":
-    url = "https://cdsarc.cds.unistra.fr/ftp/J/other/MNRAS/511/4551/"
+    url = "https://cdsarc.cds.unistra.fr/ftp/J/other/MNRAS/527/10668/"
 
     get_all_website_links(url)
 
@@ -150,5 +154,7 @@ if __name__ == "__main__":
 
     gz_table(table_list_gz)
 
-    table_parser(table_list)
+    # Connect PGSQL
+    engine = create_engine('postgresql+psycopg2://testuser:90210556@localhost:5432/hl')
 
+    table_parser(table_list)
