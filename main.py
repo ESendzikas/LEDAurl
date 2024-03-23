@@ -4,7 +4,6 @@ import wget
 from bs4 import BeautifulSoup
 from requests_html2 import HTMLSession
 import pandas as pd
-import psycopg2
 from sqlalchemy import create_engine
 
 # initialize the set of links (unique links)
